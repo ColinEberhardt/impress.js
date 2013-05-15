@@ -252,6 +252,9 @@
         
         // configuration options
         var config = null;
+          
+        // a handler that is informed when impress moves between steps
+        var gotoHandler = null;
         
         // scale factor of the browser window
         var windowScale = null;        
@@ -527,6 +530,11 @@
             // store current state
             currentState = target;
             activeStep = el;
+
+            // if a handler has been registered, inform them that the activeStep has changed
+            if (gotoHandler) {
+                gotoHandler(steps.indexOf(activeStep), activeStep);
+            }
             
             // And here is where we trigger `impress:stepenter` event.
             // We simply set up a timeout to fire it taking transition duration (and possible delay) into account.
@@ -546,6 +554,11 @@
             }, duration + delay);
             
             return el;
+        };
+        
+        // `setGoToHandler` API function that informs the given handler each time the activeStep changes
+        var setGoToHandler = function(handler) {
+            gotoHandler = handler;
         };
         
         // `prev` API function goes to previous step (in document order)
@@ -635,7 +648,8 @@
             init: init,
             goto: goto,
             next: next,
-            prev: prev
+            prev: prev,
+            setGoToHandler: setGoToHandler
         });
 
     };
